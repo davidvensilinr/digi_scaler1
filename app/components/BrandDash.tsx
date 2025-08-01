@@ -12,7 +12,7 @@ type Profile = {
     
 };
 
-export default function ProfileDash() {
+export default function BrandDash() {
     const [profiless, setProfiles] = useState<Profile[]>([]);
     const [loading, setLoading] = useState(true);
     console.log("Now?");
@@ -45,7 +45,7 @@ export default function ProfileDash() {
     
         fetchProfiles();
     }, []);
-    const profiles=profiless.filter(profile=>profile.role==='Creator')
+    const profiles=profiless.filter(profile=>profile.role==='Brand')
     
 
     return (

@@ -10,9 +10,9 @@ export default function Navbar(){
         <nav className="space-x-20">
             <Link href="/"><button className="text-white-700 hover:text-teal-500 font-medium">Home</button></Link>
             <Link href="/about"><button className="text-white-700 hover:text-teal-500 font-medium">About</button></Link>
-            <button className="text-white-700 hover:text-teal-500 font-medium">Brands</button>
-            <button className="text-white-700 hover:text-teal-500 font-medium">Creators</button>
-            <button className="text-white-700 hover:text-teal-500 font-medium">Login/Signup</button>
+            <Link href="/brands"><button className="text-white-700 hover:text-teal-500 font-medium">Brands</button></Link>
+            <Link href="/creators"><button className="text-white-700 hover:text-teal-500 font-medium">Creators</button></Link>
+            <Link href="/login"><button className="text-white-700 hover:text-teal-500 font-medium">Login/Signup</button></Link>
         
 
 

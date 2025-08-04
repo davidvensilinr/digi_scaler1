@@ -11,7 +11,7 @@ declare global {
     var mongoose: MongooseCache;
 }
 
-const MONGODB_URI = process.env.URI || 'mongodb://localhost:27017/digi';
+const MONGODB_URI = process.env.MONGODB_URI || 'mont:27017/digi';
 
 if (!MONGODB_URI) {
     throw new Error(

@@ -31,7 +31,7 @@ export default function ProfileCard({name,role,public_id,index}:Props){
             
             <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"><Link 
             href={{
-                pathname: '/Chat',
+                pathname: '/chat',
                 query:{
                     name,
                     public_id,

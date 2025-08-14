@@ -8,14 +8,18 @@ export default function SignupPage(){
     const [name,setName]=useState("");
     const[role,setRole]=useState("Creator");
     const[image,setImage]=useState<File |null>(null);
+    const[dpassword,setDpassword]=useState("");
+    const[password,setPassword]=useState("");
     const[loading,setLoading]=useState(false);
     const router=useRouter();
 
     const handleSubmit = async (e: React.FormEvent)=>{
         e.preventDefault();
         console.log("Form submitted");
-        if(!name||!image) return alert("Please provide name and image");
-
+        if(!name||!image||!password) return alert("Please provide name and image and password");
+        if (dpassword !== password) {
+          return alert("Passwords do not match");
+        }
         setLoading(true);
 
         try{
@@ -34,7 +38,7 @@ export default function SignupPage(){
             const res= await fetch("/api/signup",{
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({name,role,profile_id:public_id}),
+                body:JSON.stringify({name,role,profile_id:public_id,password}),
             });
 
             const data = await res.json();
@@ -106,6 +110,8 @@ export default function SignupPage(){
               <input
                 type="password"
                 placeholder="Enter password"
+                value={dpassword}
+                onChange={(e)=>setDpassword(e.target.value)}
                 className="mt-1 w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -114,6 +120,8 @@ export default function SignupPage(){
               <input
                 type="password"
                 placeholder="Confirm password"
+                value={password}
+                onChange={(e)=>setPassword(e.target.value)}
                 className="mt-1 w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
               />
             </div>

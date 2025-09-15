@@ -4,8 +4,8 @@ const next = require('next');
 const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = process.env.HOSTNAME || 'localhost';
-const port = parseInt(process.env.PORT || '3000', 10);
+const hostname = process.env.HOSTNAME || '0.0.0.0';
+const port = parseInt(process.env.PORT || '10000', 10);
 
 // Create Next.js app
 const app = next({ dev, hostname, port });
@@ -37,14 +37,26 @@ app.prepare().then(() => {
   const io = new Server(server, {
     path: '/api/socket/io',
     cors: {
-      origin: '*',
+      origin: process.env.NODE_ENV === 'production' 
+        ? [
+            'https://your-render-app.onrender.com',  // Update with your Render URL
+            'https://www.yourdomain.com',           // Your custom domain if you have one
+          ]
+        : '*',
       methods: ['GET', 'POST'],
       credentials: true
     },
-    transports: ['websocket'],
+    transports: ['websocket', 'polling'],
     allowEIO3: true,
     pingTimeout: 60000,
-    pingInterval: 25000
+    pingInterval: 25000,
+    cookie: {
+      name: 'io',
+      httpOnly: true,
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 86400 // 24 hours
+    }
   });
 
   // Log when a client connects
@@ -89,10 +101,11 @@ app.prepare().then(() => {
     console.error('Server error:', err);
   });
 
-  // Start the server
-  server.listen(port, hostname, (err) => {
-    if (err) throw err;
+  // Start server
+  server.listen(port, hostname, () => {
+    console.log(`> Server running in ${process.env.NODE_ENV || 'development'} mode`);
     console.log(`> Ready on http://${hostname}:${port}`);
+    console.log(`> WebSocket path: /api/socket/io`);
   });
 
   // Handle graceful shutdown

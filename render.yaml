@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: digi-scaler
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: NEXTAUTH_URL
+        value: https://your-render-app.onrender.com  # Update with your Render URL
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: MONGODB_URI
+        sync: false  # Set this in Render dashboard
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false  # Set this in Render dashboard
+      - key: CLOUDINARY_API_KEY
+        sync: false  # Set this in Render dashboard
+      - key: CLOUDINARY_API_SECRET
+        sync: false  # Set this in Render dashboard

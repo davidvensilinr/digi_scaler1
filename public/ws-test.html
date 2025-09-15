@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>WebSocket Test</h1>
+    <div id="status">Connecting...</div>
+    <div id="messages"></div>
+
+    <script>
+        const socket = io({
+            path: '/api/socket/io',
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            timeout: 20000,
+        });
+
+        socket.on('connect', () => {
+            console.log('Connected to WebSocket server');
+            document.getElementById('status').textContent = 'Connected!';
+            document.getElementById('status').style.color = 'green';
+        });
+
+        socket.on('disconnect', (reason) => {
+            console.log('Disconnected:', reason);
+            document.getElementById('status').textContent = `Disconnected: ${reason}`;
+            document.getElementById('status').style.color = 'red';
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('Connection error:', error);
+            document.getElementById('status').textContent = `Error: ${error.message}`;
+            document.getElementById('status').style.color = 'red';
+        });
+
+        // Log all events for debugging
+        const events = ['connect', 'disconnect', 'connect_error', 'connect_timeout', 'reconnect', 'reconnect_attempt', 'reconnecting', 'reconnect_error', 'reconnect_failed'];
+        events.forEach(event => {
+            socket.on(event, (data) => {
+                console.log(`Event: ${event}`, data);
+                const messages = document.getElementById('messages');
+                const message = document.createElement('div');
+                message.textContent = `[${new Date().toISOString()}] ${event}: ${JSON.stringify(data || {})}`;
+                messages.prepend(message);
+            });
+        });
+    </script>
+</body>
+</html>

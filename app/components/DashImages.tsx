@@ -13,7 +13,7 @@ export default function DashImages(){
 
 useEffect(()=>{
     const fetchImages = async()=>{
-        const res=await fetch('api/dash_images')
+        const res=await fetch('/api/dash_images')
         const data = await res.json()
         setImages(data)
     }

@@ -1,10 +1,25 @@
 import { NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import mongoose from 'mongoose';
 import Profile from '@/lib/models/profile';
 import connectDb from '@/lib/mongodb';
 
-// GET: Fetch all profiles
-export async function GET() {
+// GET: Fetch all profiles or a single profile by ID
+export async function GET(request: NextRequest) {
+    const { pathname } = new URL(request.url);
+    const id = pathname.split('/').pop();
+    
+    // If there's an ID in the URL, fetch a single profile
+    if (id && id !== 'profiles') {
+        return getProfileById(id);
+    }
+    
+    // Otherwise, fetch all profiles
+    return getAllProfiles();
+}
+
+// Get all profiles
+async function getAllProfiles() {
     console.log('🔍 GET /api/profiles called');
     
     try {
@@ -13,13 +28,6 @@ export async function GET() {
         await connectDb();
         console.log('✅ MongoDB connected successfully');
 
-        // Log the collection name from the model
-        console.log(`🔍 Collection name: ${Profile.collection.collectionName}`);
-        
-        // Count documents in the collection
-        const count = await Profile.countDocuments();
-        console.log(`📊 Found ${count} profiles in the collection`);
-        
         // Get all profiles
         const profiles = await Profile.find({}).lean();
         console.log(`📤 Sending ${profiles.length} profiles to client`);
@@ -31,6 +39,47 @@ export async function GET() {
         return NextResponse.json(
             { 
                 error: 'Failed to fetch profiles',
+                details: error instanceof Error ? error.message : 'Unknown error'
+            },
+            { status: 500 }
+        );
+    }
+}
+
+// Get a single profile by ID
+async function getProfileById(id: string) {
+    console.log(`🔍 GET /api/profiles/${id} called`);
+    
+    try {
+        // Validate ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return NextResponse.json(
+                { error: 'Invalid profile ID format' },
+                { status: 400 }
+            );
+        }
+
+        // Connect to MongoDB
+        await connectDb();
+        
+        // Find the profile by ID
+        const profile = await Profile.findById(id).lean();
+        
+        if (!profile) {
+            return NextResponse.json(
+                { error: 'Profile not found' },
+                { status: 404 }
+            );
+        }
+        
+        console.log(`📤 Sending profile with ID: ${id}`);
+        return NextResponse.json(profile);
+    }
+    catch (error) {
+        console.error(`❌ Error in GET /api/profiles/${id}:`, error);
+        return NextResponse.json(
+            { 
+                error: 'Failed to fetch profile',
                 details: error instanceof Error ? error.message : 'Unknown error'
             },
             { status: 500 }

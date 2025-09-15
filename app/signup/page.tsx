@@ -6,6 +6,7 @@ import Navbar from "../components/Navbar"
 import Link from "next/link"
 export default function SignupPage(){
     const [name,setName]=useState("");
+    const[email_id,setEmail_id]=useState("");
     const[role,setRole]=useState("Creator");
     const[image,setImage]=useState<File |null>(null);
     const[dpassword,setDpassword]=useState("");
@@ -38,7 +39,7 @@ export default function SignupPage(){
             const res= await fetch("/api/signup",{
                 method:"POST",
                 headers:{"Content-Type":"application/json"},
-                body:JSON.stringify({name,role,profile_id:public_id,password}),
+                body:JSON.stringify({name,email_id,role,profile_id:public_id,password}),
             });
 
             const data = await res.json();
@@ -70,7 +71,8 @@ export default function SignupPage(){
               <label className="block text-sm font-medium">Email</label>
               <input
                 type="email"
-    
+                value={email_id}
+                onChange={(e)=>setEmail_id(e.target.value)}
                 placeholder="Enter your email"
                 className="mt-1 w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
               />

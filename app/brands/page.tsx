@@ -1,3 +1,4 @@
+'use client'
 import Navbar from "../components/Navbar"
 import BrandDash from '../components/BrandDash'
 export default function About(){

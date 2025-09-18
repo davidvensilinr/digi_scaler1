@@ -1,7 +1,14 @@
 import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
-const isProd = process.env.NODE_ENV === "production";
+// Check the current environment
+const isProd = process.env.NODE_ENV === 'production';
+
+// Log the current environment
+console.log(`[PWA] Running in ${isProd ? 'production' : 'development'} mode`);
+
+// Log PWA status
+console.log(`[PWA] PWA is ${isProd ? 'enabled' : 'disabled'}`);
 
 // Runtime caching strategies for next-pwa
 // Note: Types are relaxed to avoid strict type issues from Workbox typings in TS configs.
@@ -100,11 +107,48 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withPWA({
-  dest: "public",
-  disable: !isProd, // Disable SW in development
+const pwaConfig = {
+  dest: 'public',
+  disable: !isProd, // Only enable in production
   register: true,
   skipWaiting: true,
   runtimeCaching,
-})(nextConfig);
+  fallbacks: {
+    document: '/offline',
+    image: '/icons/icon-192x192.png',
+  },
+  // PWA configuration
+  buildExcludes: [
+    /middleware-manifest\.json$/, 
+    /_middleware\.js$/, 
+    /middleware\.js$/, 
+    /middleware\.mjs$/,
+    /^.+?_middleware\..+?$/, 
+    /\/api\/.*/,
+    /_buildManifest\.js$/,  // Exclude build manifest
+    /_ssgManifest\.js$/,   // Exclude SSG manifest
+  ],
+  // Disable precaching in development
+  disablePrecaching: !isProd,
+  // Enable PWA features
+  dynamicStartUrl: true,
+  reloadOnOnline: true,
+  // Cache control
+  cacheOnFrontEndNav: true,
+  // Enable debug logging in development
+  debug: !isProd,
+  // Additional PWA configuration
+  publicExcludes: ['!sitemap.xml', '!robots.txt'],
+  // Don't cache the following routes
+  exclude: [
+    /\/_next\/static\/chunks\/pages\/_error\.js$/, // Exclude error page
+    /\/_next\/static\/chunks\/pages\/404\.js$/,    // Exclude 404 page
+    /\/_next\/static\/chunks\/pages\/500\.js$/,    // Exclude 500 page
+  ],
+};
+
+const withPWAConfig = withPWA(pwaConfig);
+
+// Apply the PWA configuration to Next.js config
+export default withPWAConfig(nextConfig);
 

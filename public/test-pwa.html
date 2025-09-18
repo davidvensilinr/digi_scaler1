@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test PWA Installation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+    button {
+      background-color: #0ea5e9;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 10px;
+    }
+    button:hover {
+      background-color: #0284c7;
+    }
+    #installButton {
+      display: none;
+      margin: 20px auto;
+    }
+    .log {
+      text-align: left;
+      background: #f5f5f5;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <h1>PWA Installation Test</h1>
+  <p>This page tests the PWA installation functionality.</p>
+  
+  <button id="installButton">Install App</button>
+  
+  <div>
+    <h3>Debug Information</h3>
+    <div class="log" id="log"></div>
+  </div>
+
+  <script>
+    const log = document.getElementById('log');
+    const installButton = document.getElementById('installButton');
+    let deferredPrompt;
+
+    function logMessage(message) {
+      const p = document.createElement('p');
+      p.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      log.appendChild(p);
+      console.log(message);
+    }
+
+    // Log service worker registration
+    if ('serviceWorker' in navigator) {
+      logMessage('Service Worker API is supported');
+      
+      navigator.serviceWorker.register('/sw.js')
+        .then(registration => {
+          logMessage(`Service Worker registered with scope: ${registration.scope}`);
+        })
+        .catch(error => {
+          logMessage(`Service Worker registration failed: ${error}`);
+        });
+    } else {
+      logMessage('Service Worker API is not supported in this browser');
+    }
+
+    // Handle the beforeinstallprompt event
+    window.addEventListener('beforeinstallprompt', (e) => {
+      // Prevent the default browser install prompt
+      e.preventDefault();
+      logMessage('beforeinstallprompt event fired');
+      
+      // Stash the event so it can be triggered later
+      deferredPrompt = e;
+      
+      // Show the install button
+      installButton.style.display = 'block';
+      
+      // Log the platforms that are available
+      logMessage(`Available platforms: ${e.platforms ? e.platforms.join(', ') : 'not available'}`);
+    });
+
+    // Handle the appinstalled event
+    window.addEventListener('appinstalled', (e) => {
+      logMessage('App was installed');
+      installButton.style.display = 'none';
+    });
+
+    // Handle install button click
+    installButton.addEventListener('click', async () => {
+      if (!deferredPrompt) {
+        logMessage('No installation prompt available');
+        return;
+      }
+      
+      logMessage('Showing installation prompt');
+      
+      try {
+        // Show the installation prompt
+        deferredPrompt.prompt();
+        
+        // Wait for the user to respond to the prompt
+        const { outcome } = await deferredPrompt.userChoice;
+        
+        if (outcome === 'accepted') {
+          logMessage('User accepted the installation');
+        } else {
+          logMessage('User dismissed the installation');
+        }
+        
+        // Clear the deferred prompt
+        deferredPrompt = null;
+        installButton.style.display = 'none';
+      } catch (error) {
+        logMessage(`Error during installation: ${error}`);
+      }
+    });
+
+    // Check if the app is already installed
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      logMessage('App is running in standalone mode');
+    } else {
+      logMessage('App is running in browser');
+    }
+
+    // Check if the app is running on iOS
+    const isIos = () => {
+      const userAgent = window.navigator.userAgent.toLowerCase();
+      return /iphone|ipad|ipod/.test(userAgent);
+    };
+
+    // Check if the app is running in standalone mode on iOS
+    const isInStandaloneMode = () => {
+      return ('standalone' in window.navigator) && (window.navigator.standalone);
+    };
+
+    if (isIos() && !isInStandaloneMode()) {
+      logMessage('iOS: Add to Home Screen instructions:');
+      logMessage('1. Tap the share button');
+      logMessage('2. Tap "Add to Home Screen"');
+    }
+  </script>
+</body>
+</html>

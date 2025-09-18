@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>SVG to PNG Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin: 10px 0;
+    }
+    #result {
+      margin-top: 20px;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h1>SVG to PNG Data URL</h1>
+  <p>Paste your SVG code below and click the button to convert it to a base64 PNG data URL.</p>
+  
+  <textarea id="svgInput" placeholder="Paste SVG code here..."></textarea>
+  <br>
+  <button onclick="convert()">Convert to PNG Data URL</button>
+  
+  <div id="result"></div>
+  
+  <script>
+    function convert() {
+      const svgInput = document.getElementById('svgInput').value.trim();
+      if (!svgInput) {
+        alert('Please paste some SVG code first');
+        return;
+      }
+      
+      const svgBlob = new Blob([svgInput], {type: 'image/svg+xml;charset=utf-8'});
+      const svgUrl = URL.createObjectURL(svgBlob);
+      
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        
+        const pngDataUrl = canvas.toDataURL('image/png');
+        
+        const result = document.getElementById('result');
+        result.innerHTML = `
+          <h3>PNG Data URL (${img.width}×${img.height}):</h3>
+          <textarea style="height: 100px;">${pngDataUrl}</textarea>
+          <h4>Usage:</h4>
+          <pre>&lt;img src="${pngDataUrl}" alt="Icon"&gt;</pre>
+          <h4>Preview:</h4>
+          <img src="${pngDataUrl}" alt="Preview">
+        `;
+        
+        URL.revokeObjectURL(svgUrl);
+      };
+      
+      img.onerror = function() {
+        alert('Error loading the SVG. Please check the SVG code.');
+      };
+      
+      img.src = svgUrl;
+    }
+    
+    // Load the logo.svg content if it exists
+    fetch('/logo.svg')
+      .then(response => response.text())
+      .then(svg => {
+        document.getElementById('svgInput').value = svg;
+      })
+      .catch(err => console.log('Could not load logo.svg', err));
+  </script>
+</body>
+</html>

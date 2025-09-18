@@ -1,4 +1,54 @@
 import type { NextConfig } from "next";
+import withPWA from "next-pwa";
+
+const isProd = process.env.NODE_ENV === "production";
+
+// Runtime caching strategies for next-pwa
+// Note: Types are relaxed to avoid strict type issues from Workbox typings in TS configs.
+const runtimeCaching: any[] = [
+  // Cache Next.js static assets
+  {
+    urlPattern: /^https?:\/\/[^/]+\/_next\/static\//,
+    handler: "CacheFirst",
+    options: {
+      cacheName: "next-static-assets",
+      expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+      cacheableResponse: { statuses: [0, 200] },
+    },
+  },
+  // Optimize Next Image responses
+  {
+    urlPattern: /^https?:\/\/[^/]+\/_next\/image\//,
+    handler: "StaleWhileRevalidate",
+    options: {
+      cacheName: "next-image",
+      expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+      cacheableResponse: { statuses: [0, 200] },
+    },
+  },
+  // Cloudinary images
+  {
+    urlPattern: /^https?:\/\/res\.cloudinary\.com\//,
+    handler: "CacheFirst",
+    options: {
+      cacheName: "cloudinary-images",
+      expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 },
+      cacheableResponse: { statuses: [0, 200] },
+    },
+  },
+  // API routes – prefer network, fall back to cache
+  {
+    urlPattern: ({ url }: any) => url.pathname.startsWith("/api/"),
+    handler: "NetworkFirst",
+    method: "GET",
+    options: {
+      cacheName: "api-cache",
+      networkTimeoutSeconds: 3,
+      expiration: { maxEntries: 100, maxAgeSeconds: 60 * 5 },
+      cacheableResponse: { statuses: [0, 200] },
+    },
+  },
+];
 
 const nextConfig: NextConfig = {
   typescript: {
@@ -50,4 +100,11 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withPWA({
+  dest: "public",
+  disable: !isProd, // Disable SW in development
+  register: true,
+  skipWaiting: true,
+  runtimeCaching,
+})(nextConfig);
+

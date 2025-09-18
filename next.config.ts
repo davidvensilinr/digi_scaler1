@@ -128,15 +128,13 @@ const pwaConfig = {
     /_buildManifest\.js$/,  // Exclude build manifest
     /_ssgManifest\.js$/,   // Exclude SSG manifest
   ],
-  // Disable precaching in development
-  disablePrecaching: !isProd,
   // Enable PWA features
   dynamicStartUrl: true,
   reloadOnOnline: true,
   // Cache control
   cacheOnFrontEndNav: true,
-  // Enable debug logging in development
-  debug: !isProd,
+  // Disable dev logs in production
+  disableDevLogs: isProd,
   // Additional PWA configuration
   publicExcludes: ['!sitemap.xml', '!robots.txt'],
   // Don't cache the following routes

@@ -143,10 +143,8 @@ const pwaConfig = {
     /\/_next\/static\/chunks\/pages\/404\.js$/,    // Exclude 404 page
     /\/_next\/static\/chunks\/pages\/500\.js$/,    // Exclude 500 page
   ],
-  // Explicitly set the precache manifest filename
-  sw: 'sw.js',
-  // Disable precaching in development
-  disablePrecaching: !isProd,
+  // Explicitly set the service worker filename
+  sw: 'sw.js'
 };
 
 const withPWAConfig = withPWA(pwaConfig);

@@ -4,10 +4,11 @@ const next = require('next');
 const { Server } = require('socket.io');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = process.env.HOSTNAME || '0.0.0.0';
-const port = parseInt(process.env.PORT || '10000', 10);
+const hostname = '0.0.0.0'; // Always listen on all interfaces
+const port = parseInt(process.env.PORT || '3000', 10);
 
 console.log(`Starting server on ${hostname}:${port}`);
+console.log('NODE_ENV:', process.env.NODE_ENV);
 
 // Create Next.js app
 const app = next({ dev, hostname, port });
@@ -41,8 +42,8 @@ app.prepare().then(() => {
     cors: {
       origin: process.env.NODE_ENV === 'production' 
         ? [
-            'https://your-render-app.onrender.com',  // Update with your Render URL
-            'https://www.yourdomain.com',           // Your custom domain if you have one
+            'https://digi-scaler1.onrender.com',
+            'https://www.digi-scaler1.onrender.com'
           ]
         : '*',
       methods: ['GET', 'POST'],
